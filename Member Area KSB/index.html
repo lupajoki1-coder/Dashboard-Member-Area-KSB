@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Area</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Kustom untuk efek neumorphism */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e0e5ec;
+        }
+
+        /* Efek terangkat untuk panel utama dan tombol */
+        .neumorphic-card {
+            border-radius: 1.5rem; /* rounded-3xl */
+            background: #e0e5ec;
+            box-shadow: 8px 8px 16px #babecc, 
+                        -8px -8px 16px #ffffff;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .neumorphic-card:active {
+            box-shadow: inset 5px 5px 10px #babecc, 
+                        inset -5px -5px 10px #ffffff;
+        }
+
+        /* Efek cekung untuk display/input passcode */
+        .neumorphic-inset {
+            background-color: #e0e5ec;
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: inset 4px 4px 8px #babecc,
+                        inset -4px -4px 8px #ffffff;
+            border: none;
+            outline: none;
+        }
+        
+        /* Animasi untuk notifikasi jika login gagal */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        .shake-animation {
+            animation: shake 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <div id="login-panel" class="neumorphic-card p-8 sm:p-10 w-full max-w-sm text-center">
+        <!-- Judul -->
+        <h1 class="text-2xl font-bold text-gray-700 mb-2">Member Area</h1>
+        <p id="message" class="text-sm text-gray-500 mb-8 h-5 transition-all duration-300"></p>
+
+        <!-- Form Input -->
+        <div class="space-y-8">
+             <input type="password" id="passcode-input" class="neumorphic-inset w-full h-14 px-6 text-center text-lg text-gray-700 tracking-wider focus:outline-none" placeholder="Masukkan Passcode">
+            
+            <button id="login-btn" class="neumorphic-card w-full h-14 text-lg font-semibold text-gray-700">
+                Login
+            </button>
+        </div>
+    </div>
+
+    <!-- Memuat data dari file database.js -->
+    <script src="database.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const messageEl = document.getElementById('message');
+            const loginPanel = document.getElementById('login-panel');
+            const passcodeInput = document.getElementById('passcode-input');
+            const loginBtn = document.getElementById('login-btn');
+            
+            // Fungsi untuk menampilkan pesan notifikasi
+            function showMessage(text, colorClass) {
+                messageEl.textContent = text;
+                messageEl.className = `text-sm h-5 transition-all duration-300 ${colorClass}`;
+            }
+            
+            // Fungsi untuk menangani proses login
+            function handleLogin() {
+                const enteredPasscode = passcodeInput.value.trim();
+
+                if (!enteredPasscode) {
+                    showMessage('Passcode tidak boleh kosong!', 'text-red-500');
+                    loginPanel.classList.add('shake-animation');
+                    setTimeout(() => loginPanel.classList.remove('shake-animation'), 500);
+                    return;
+                }
+
+                // Cari data pengguna di dalam 'database' (dari database.js)
+                const userData = database.find(user => user.password === enteredPasscode);
+
+                if (userData) {
+                    // Jika passcode benar
+                    showMessage('Login Berhasil!', 'text-green-500');
+                    
+                    loginBtn.disabled = true;
+                    passcodeInput.disabled = true;
+
+                    // Ganti tampilan untuk menandakan berhasil
+                    loginPanel.innerHTML = `
+                        <div class="text-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-20 w-20 mx-auto text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <h1 class="text-2xl font-bold text-gray-700 mt-4">Login Berhasil</h1>
+                            <p class="text-gray-500 mt-2">Anda akan diarahkan...</p>
+                        </div>
+                    `;
+
+                    // Arahkan ke URL dari database setelah jeda singkat
+                    setTimeout(() => {
+                        window.location.href = userData.url;
+                    }, 1500);
+                } else {
+                    // Jika passcode salah
+                    showMessage('Passcode Salah!', 'text-red-500');
+                    loginPanel.classList.add('shake-animation');
+                    passcodeInput.value = '';
+                    passcodeInput.focus();
+                    
+                    setTimeout(() => {
+                        loginPanel.classList.remove('shake-animation');
+                    }, 500);
+                }
+            }
+
+            // Event listener untuk tombol Login
+            loginBtn.addEventListener('click', handleLogin);
+
+            // Event listener untuk menekan tombol 'Enter' di kolom input
+            passcodeInput.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    handleLogin();
+                }
+            });
+            
+            // Fokus ke kolom input passcode saat halaman dimuat
+            passcodeInput.focus();
+        });
+    </script>
+
+</body>
+</html>
+
