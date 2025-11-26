@@ -11,8 +11,9 @@ const database = [
   { "nomor": 3, "password": "ksb2025", "url": "https://dashboard-progress-proyek-all-klien.vercel.app/" },
   { "nomor": 4, "password": "shn2025", "url": "https://dashboard-progress-halal-cv-shn-gil.vercel.app/" },
   { "nomor": 5, "password": "mck2025", "url": "https://dashboard-progress-pt-momzilla-ck-m.vercel.app/" },
-  { "nomor": 6, "password": "jws2025", "url": "https://jaya-wijaya-sejahtera-malang-001a.netlify.app/" }
+  { "nomor": 6, "password": "jws2025", "url": "https://dashboard-progress-halal-pt-jaya-wi.vercel.app/" }
   // Tambahkan pengguna lain di sini jika diperlukan...
 ];
+
 
 
